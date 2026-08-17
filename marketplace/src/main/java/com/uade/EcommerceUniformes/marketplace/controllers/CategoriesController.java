@@ -17,18 +17,16 @@ public class CategoriesController {
     }
 
     @GetMapping("/{categoryId}")
-    public String getCategorById(@PathVariable int categoryId){// localhost:4002/categories/id // sirve oara pedir una categoria especifica por su id
+    public Category getCategorById(@PathVariable int categoryId){// localhost:4002/categories/id // sirve oara pedir una categoria especifica por su id
         CategoryService categoryService = new CategoryService();
         return categoryService.getCategorById(categoryId);
     }
 
     @PostMapping
-    public String createCategory(@RequestBody String categoria){ //crea una categoria // localhost:4002/categories
+    public Category createCategory(@RequestBody Category categoria){ //crea una categoria // localhost:4002/categories
         CategoryService categoryService = new CategoryService();
         return categoryService.createCategory(categoria);
     }
-
-
 
 
 }

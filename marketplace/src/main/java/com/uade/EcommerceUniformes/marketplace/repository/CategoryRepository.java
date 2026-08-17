@@ -22,10 +22,18 @@ public class CategoryRepository {
         return this.categories;
     }
 
-    public String getCategorById(@PathVariable int categoryId){
+    public Category getCategoryById(@PathVariable int categoryId){
+        for (Category c : categories) {
+            if (c.getId() == categoryId) {
+                return c;
+            }
+        }
         return null;
     }
 
-    public String createCategory(@RequestBody String categoria){
-        return null;    }
+    public Category createCategory(@RequestBody Category categoria){
+        categoria.setId(categories.size() + 1);
+        categories.add(categoria);
+        return categoria;
+    }
 }

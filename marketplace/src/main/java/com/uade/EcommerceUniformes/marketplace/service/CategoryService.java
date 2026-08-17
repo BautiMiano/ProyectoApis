@@ -11,17 +11,16 @@ public class CategoryService {
 
     public ArrayList<Category> getCategories(){
         CategoryRepository categoryRepository = new CategoryRepository();
-        categoryRepository.getCategories();
         return categoryRepository.getCategories();
     }
 
-    public String getCategorById(@PathVariable int categoryId){
-        return new String();
+    public Category getCategorById(@PathVariable int categoryId){
+        CategoryRepository categoryRepository = new CategoryRepository();
+        return categoryRepository.getCategoryById(categoryId);
     }
 
-    public String createCategory(@RequestBody String categoria){
-        return categoria;
+    public Category createCategory(@RequestBody Category categoria){
+        CategoryRepository categoryRepository = new CategoryRepository();
+        return categoryRepository.createCategory(categoria);
     }
-
-
 }
