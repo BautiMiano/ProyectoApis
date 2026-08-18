@@ -25,5 +25,8 @@ public class Producto {
     public Category getCategoria() {
         return this.categoria;
     }
+    public int getId() {
+        return this.id;
+    }
 
 }
