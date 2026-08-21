@@ -1,22 +1,18 @@
 package com.uade.EcommerceUniformes.marketplace.service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Comentario;
-import com.uade.EcommerceUniformes.marketplace.repository.ComentarioRepository;
-import java.util.ArrayList;
+import com.uade.EcommerceUniformes.marketplace.entity.dto.ComentarioRequest;
 
-public class ComentarioService {
+import java.util.List;
+import java.util.Optional;
 
-    private ComentarioRepository comentarioRepository = new ComentarioRepository();
+public interface ComentarioService {
 
-    public ArrayList<Comentario> getComentarios() {
-        return comentarioRepository.getComentarios();
-    }
+    List<Comentario> getComentarios();
+    
+    Optional<Comentario> getComentariosById(Long comentarioId);
 
-    public ArrayList<Comentario> getComentariosByProductoId(int productoId) {
-        return comentarioRepository.getComentariosByProductoId(productoId);
-    }
+    List<Comentario> getComentariosByProductoId(Long productoId);
 
-    public Comentario createComentario(Comentario comentario) {
-        return comentarioRepository.createComentario(comentario);
-    }
+    Comentario createComentario(ComentarioRequest request);
 }

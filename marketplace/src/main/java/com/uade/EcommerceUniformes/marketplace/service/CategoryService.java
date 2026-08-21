@@ -2,26 +2,33 @@ package com.uade.EcommerceUniformes.marketplace.service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Category;
 import com.uade.EcommerceUniformes.marketplace.repository.CategoryRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
 
-import java.util.ArrayList;
-
+@Service
+@RequiredArgsConstructor
 
 public class CategoryService {
 
-    public ArrayList<Category> getCategories(){
-        CategoryRepository categoryRepository = new CategoryRepository();
-        categoryRepository.getCategories();
-        return categoryRepository.getCategories();
+    private final CategoryRepository categoryRepository;
+
+    public List<Category> getCategories(){
+        return this.categoryRepository.findAll();
     }
 
-    public String getCategorById(@PathVariable int categoryId){
-        return new String();
+    public Optional<Category> getCategoryById(Long categoryId){
+        return this.categoryRepository.findById(categoryId);
     }
 
-    public String createCategory(@RequestBody String categoria){
-        return categoria;
+    public Category createCategory(Category category){
+        return this.categoryRepository.save(category);
     }
-
 
 }
+
+    
+
+
+

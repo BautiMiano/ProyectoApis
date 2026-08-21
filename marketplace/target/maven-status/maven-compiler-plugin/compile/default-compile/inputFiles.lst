@@ -19,6 +19,8 @@
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/entity/Producto.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/entity/Rol.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/entity/Usuario.java
+/home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/entity/dto/ComentarioRequest.java
+/home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/entity/dto/ProductoRequest.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/repository/CalificacionRepository.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/repository/CarritoRepository.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/repository/CategoryRepository.java
@@ -31,7 +33,9 @@
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/CarritoSerivce.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/CategoryService.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/ComentarioService.java
+/home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/ComentarioServiceImpl.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/DescuentoService.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/OrdenDeCompraService.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/ProductoService.java
+/home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/ProductoServiceImpl.java
 /home/nicole/Documents/ProyectoApis/marketplace/src/main/java/com/uade/EcommerceUniformes/marketplace/service/UsuarioService.java

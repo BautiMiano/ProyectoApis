@@ -3,29 +3,31 @@ package com.uade.EcommerceUniformes.marketplace.controllers;
 import com.uade.EcommerceUniformes.marketplace.entity.Category;
 import org.springframework.web.bind.annotation.*;
 import com.uade.EcommerceUniformes.marketplace.service.CategoryService;
-
-import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RestController
 @RequestMapping("categories")
+@RequiredArgsConstructor
+
 public class CategoriesController {
 
+    private final CategoryService categoryService;
+
     @GetMapping
-    public ArrayList<Category> getCategories(){
-        CategoryService categoryService = new CategoryService();
-        return categoryService.getCategories();
+    public List<Category> getCategories(){
+       return categoryService.getCategories();
     }
 
     @GetMapping("/{categoryId}")
-    public String getCategorById(@PathVariable int categoryId){// localhost:4002/categories/id // sirve oara pedir una categoria especifica por su id
-        CategoryService categoryService = new CategoryService();
-        return categoryService.getCategorById(categoryId);
+    public Category getCategoryById(@PathVariable Long categoryId){// localhost:4002/categories/id // sirve oara pedir una categoria especifica por su id
+        return categoryService.getCategoryById(categoryId)
+        .orElseThrow(()-> new RuntimeException("Categoria no encontrada con id: " + categoryId));
     }
 
     @PostMapping
-    public String createCategory(@RequestBody String categoria){ //crea una categoria // localhost:4002/categories
-        CategoryService categoryService = new CategoryService();
-        return categoryService.createCategory(categoria);
+    public Category createCategory(@RequestBody Category category){ //crea una categoria // localhost:4002/categories
+        return categoryService.createCategory(category);
     }
 
 

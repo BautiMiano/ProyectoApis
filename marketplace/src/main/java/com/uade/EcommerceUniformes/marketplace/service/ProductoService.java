@@ -1,26 +1,17 @@
 package com.uade.EcommerceUniformes.marketplace.service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
-import com.uade.EcommerceUniformes.marketplace.repository.ProductoRepository;
-import java.util.ArrayList;
+import com.uade.EcommerceUniformes.marketplace.entity.dto.ProductoRequest;
+import java.util.List;
+import java.util.Optional;
 
-public class ProductoService {
+public interface ProductoService {
 
-    private ProductoRepository productoRepository = new ProductoRepository();
+    List<Producto> getProductos();
 
-    public ArrayList<Producto> getProductos() {
-        return productoRepository.getProductos();
-    }
+    Optional<Producto> getProductoById(Long productoId);
 
-    public Producto getProductoById(int productoId) {
-        return productoRepository.getProductoById(productoId);
-    }
+    List<Producto> getProductosByCategoria(Long categoryId);
 
-    public ArrayList<Producto> getProductosByCategoria(int categoryId) {
-        return productoRepository.getProductosByCategoria(categoryId);
-    }
-
-    public Producto createProducto(Producto producto) {
-        return productoRepository.createProducto(producto);
-    }
+    Producto createProducto(ProductoRequest request);
 }

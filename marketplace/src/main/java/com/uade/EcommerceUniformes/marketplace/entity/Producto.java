@@ -5,28 +5,35 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name= "productos")
 public class Producto {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable=false)
     private String nombre;
     private String descripcion;
     private double precio;
     private String talle;
-    private EstadoProducto estado;
-    private Category categoria;
-    private Descuento descuentoProducto;
     private int stock;
     private String imagen;
 
-    public Category getCategoria() {
-        return this.categoria;
-    }
-    public int getId() {
-        return this.id;
-    }
+    @Enumerated(EnumType.STRING)
+    private EstadoProducto estado;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Category categoria;
+    //private Descuento descuentoProducto;
+    
 
 }
