@@ -1,5 +1,6 @@
-package com.uade.EcommerceUniformes.marketplace.repository;
+// package com.uade.EcommerceUniformes.marketplace.repository;
 
+<<<<<<< HEAD
 import com.uade.EcommerceUniformes.marketplace.entity.Category;
 import com.uade.EcommerceUniformes.marketplace.entity.EstadoProducto;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
@@ -54,3 +55,14 @@ public class ProductoRepository {
         return producto;
     }
 }
+=======
+
+// import org.springframework.data.jpa.repository.JpaRepository;
+// import org.springframework.stereotype.Repository;
+
+// import com.uade.EcommerceUniformes.marketplace.entity.Producto;
+
+// @Repository
+// public interface ProductoRepository extends JpaRepository<Producto,Long> {
+// }
+>>>>>>> origin/main

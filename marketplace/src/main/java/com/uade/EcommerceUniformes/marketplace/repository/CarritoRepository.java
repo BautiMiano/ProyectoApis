@@ -1,5 +1,6 @@
-package com.uade.EcommerceUniformes.marketplace.repository;
+// package com.uade.EcommerceUniformes.marketplace.repository;
 
+<<<<<<< HEAD
 import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
 
@@ -41,3 +42,13 @@ public class CarritoRepository {
         return carrito;
     }
 }
+=======
+// import org.springframework.data.jpa.repository.JpaRepository;
+// import org.springframework.stereotype.Repository;
+
+// import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
+
+// @Repository
+// public interface CarritoRepository extends JpaRepository<Carrito, Long> {
+// }
+>>>>>>> origin/main
