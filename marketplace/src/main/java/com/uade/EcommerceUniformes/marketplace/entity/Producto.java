@@ -1,46 +1,46 @@
-// package com.uade.EcommerceUniformes.marketplace.entity;
+package com.uade.EcommerceUniformes.marketplace.entity;
 
+import jakarta.persistence.*;
+import lombok.Data;
 
-// import jakarta.persistence.Column;
-// import jakarta.persistence.Entity;
-// import jakarta.persistence.Id;
-// import lombok.Builder;
-// import lombok.Data;
+@Data
+@Entity
+public class Producto {
 
-// @Data
-// @Builder
+    public Producto() {
+    }
 
-// public class Producto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-//     @Id
-//     private int id;
+    @Column(nullable = false)
+    private String nombre;
 
-//     @Column
-//     private String nombre;
+    @Column
+    private String descripcion;
 
-//     @Column
-//     private String descripcion;
+    @Column(nullable = false)
+    private Double precio;
 
-//     @Column
-//     private double precio;
+    @Column
+    private String talle;
 
-//     @Column
-//     private String talle;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private EstadoProducto estado;
 
-//     @Column
-//     private EstadoProducto estado;
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Category categoria;
 
-//     @Column
-//     private Category categoria;
+    @ManyToOne
+    @JoinColumn(name = "descuento_id")
+    private Descuento descuentoProducto;
 
-//     @Column
-//     private Descuento descuentoProducto;
+    @Column
+    private Integer stock;
 
-//     @Column
-//     private int stock;
-
-//     @Column
-//     private String imagen;
-
-
-// }
+    @Column
+    private String imagen;
+}

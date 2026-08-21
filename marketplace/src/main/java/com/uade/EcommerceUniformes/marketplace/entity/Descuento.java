@@ -1,12 +1,23 @@
-// package com.uade.EcommerceUniformes.marketplace.entity;
+package com.uade.EcommerceUniformes.marketplace.entity;
 
+import jakarta.persistence.*;
+import lombok.Data;
 
-// import lombok.Builder;
-// import lombok.Data;
+@Data
+@Entity
+public class Descuento {
 
-// @Data
-// @Builder
-// public class Descuento {
-//     private int idDescuento;
-//     private double porcentaje;
-// }
+    public Descuento() {
+    }
+
+    public Descuento(Double porcentaje) {
+        this.porcentaje = porcentaje;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
+    private Double porcentaje;
+}
