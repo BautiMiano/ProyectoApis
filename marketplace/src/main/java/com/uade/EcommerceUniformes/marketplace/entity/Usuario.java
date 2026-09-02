@@ -1,6 +1,11 @@
 package com.uade.EcommerceUniformes.marketplace.entity;
 
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,11 +19,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 
-
 @Data
 @Entity
-public class Usuario {
-
+public class Usuario implements UserDetails {
 
     public Usuario(String nombreUsuario, String nombre, String apellido, String mail, String contrasena, Rol rolUsuario) {
         this.nombreUsuario = nombreUsuario;
@@ -28,7 +31,7 @@ public class Usuario {
         this.contrasena = contrasena;
         this.rolUsuario = rolUsuario;
     }
-    
+
     public Usuario() {
     }
 
@@ -36,8 +39,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(nullable = false)    
+    @Column(nullable = false)
     private String nombreUsuario;
 
     @Column(nullable = false)
@@ -54,12 +56,27 @@ public class Usuario {
     private String contrasena;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "usuario" )
+    @OneToMany(mappedBy = "usuario")
     private List<OrdenDeCompra> ordenDeCompras;
 
-   @Enumerated(EnumType.STRING)
-   @Column
-   private Rol rolUsuario;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Rol rolUsuario;
 
+    @Override
+    public String getUsername() {
+        return mail;
+    }
 
+    @Override
+    public String getPassword() {
+        return contrasena;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + rolUsuario.name())
+        );
+    }
 }

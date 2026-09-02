@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
 import com.uade.EcommerceUniformes.marketplace.entity.ItemCarrito;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
+import com.uade.EcommerceUniformes.marketplace.entity.Rol;
 import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.repository.CarritoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ItemCarritoRepository;
@@ -47,6 +48,9 @@ public class CarritoServiceImpl implements CarritoService {
 
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
                 .orElseThrow(() -> new Error("Usuario no encontrado con id: " + usuarioId));
+
+        if (usuario.getRolUsuario() != Rol.COMPRADOR)
+        throw new Error("Solo los usuarios compradores pueden crear un carrito");
 
         Carrito carrito = new Carrito();
         carrito.setUsuario(usuario);

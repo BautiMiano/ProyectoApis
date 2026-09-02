@@ -9,6 +9,7 @@ import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.uade.EcommerceUniformes.marketplace.repository.ItemDeOrdenDeCompraRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,9 @@ public class ComentarioServiceImpl implements ComentarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ItemDeOrdenDeCompraRepository itemDeOrdenDeCompraRepository;
 
     @Override
     public List<Comentario> getComentarios() {
@@ -41,24 +45,30 @@ public class ComentarioServiceImpl implements ComentarioService {
     }
 
     @Override
-    public Comentario createComentario(ComentarioRequest request) {
+public Comentario createComentario(ComentarioRequest request) {
 
-        Producto producto = productoRepository.findById(request.getProductoId())
-                .orElseThrow(() -> new RuntimeException(
-                "Producto no encontrado con id: " + request.getProductoId()));
+    Producto producto = productoRepository.findById(request.getProductoId())
+            .orElseThrow(() -> new RuntimeException(
+            "Producto no encontrado con id: " + request.getProductoId()));
 
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException(
-                "Usuario no encontrado con id: " + request.getUsuarioId()));
+    Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+            .orElseThrow(() -> new RuntimeException(
+            "Usuario no encontrado con id: " + request.getUsuarioId()));
 
-        Comentario comentario = new Comentario();
+    boolean comproElProducto = itemDeOrdenDeCompraRepository
+            .existsByOrden_Usuario_IdAndProducto_Id(request.getUsuarioId(), request.getProductoId());
+    if (!comproElProducto)
+        throw new RuntimeException("Solo podés comentar productos que hayas comprado");
 
-        comentario.setUsuario(usuario);
-        comentario.setComentarioProducto(request.getComentarioProducto());
-        comentario.setCalificacion(request.getCalificacion());
-        comentario.setProducto(producto);
+    if (comentarioRepository.findByUsuarioIdAndProductoId(request.getUsuarioId(), request.getProductoId()).isPresent())
+        throw new RuntimeException("Ya dejaste un comentario para este producto");
 
-        return comentarioRepository.save(comentario);
-    }
+    Comentario comentario = new Comentario();
+    comentario.setUsuario(usuario);
+    comentario.setComentarioProducto(request.getComentarioProducto());
+    comentario.setCalificacion(request.getCalificacion());
+    comentario.setProducto(producto);
 
+    return comentarioRepository.save(comentario);
+}
 }
