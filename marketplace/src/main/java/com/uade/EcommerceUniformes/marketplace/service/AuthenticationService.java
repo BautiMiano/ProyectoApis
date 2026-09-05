@@ -45,7 +45,7 @@ public class AuthenticationService {
                 request.getMail(),
                 passwordEncoder.encode(request.getContrasena()),
                 Rol.COMPRADOR
-        );
+            );
 
         usuarioRepository.save(usuario);
 
