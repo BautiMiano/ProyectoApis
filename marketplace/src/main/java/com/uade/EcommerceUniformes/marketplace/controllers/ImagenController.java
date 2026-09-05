@@ -24,14 +24,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImagenController {
 
-    private final ImagenService imagenService;
-    private final ProductoRepository productoRepository;
+        private final ImagenService imagenService;
+        private final ProductoRepository productoRepository;
 
-    @PostMapping
-    public String addImagePost(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("productoId") Long productoId)
-            throws IOException, SQLException {
+        @PostMapping
+        public String addImagePost(
+                @RequestParam("file") MultipartFile file,
+                @RequestParam("productoId") Long productoId)
+                throws IOException, SQLException {
 
         byte[] bytes = file.getBytes();
 
@@ -49,12 +49,12 @@ public class ImagenController {
         imagenService.createImagen(imagen);
 
         return "created";
-    }
+        }
 
-    @GetMapping
-    public ResponseEntity<ImagenResponse> displayImage(
-            @RequestParam("id") Long id)
-            throws SQLException {
+        @GetMapping
+        public ResponseEntity<ImagenResponse> displayImage(
+                @RequestParam("id") Long id)
+                throws SQLException {
 
         Imagen imagen = imagenService.viewById(id);
 
@@ -74,11 +74,11 @@ public class ImagenController {
                                 .id(id)
                                 .build()
                 );
-    }
+        }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> desactivarImagen(@PathVariable Long id) {
-        imagenService.desactivarImagen(id);
-        return ResponseEntity.ok("Imagen desactivada");
-    }
+        @PatchMapping("/{id}")
+        public ResponseEntity<String> desactivarImagen(@PathVariable Long id) {
+                imagenService.desactivarImagen(id);
+                return ResponseEntity.ok("Imagen desactivada");
+        }
 }

@@ -16,5 +16,5 @@ public interface ProductoService {
 
     Producto createProducto(ProductoRequest request);
 
-    void deleteProducto(Long productoId);
+    public void deleteProducto(Long productoId, Long usuarioId);
 }

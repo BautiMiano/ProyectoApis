@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Category;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
+import com.uade.EcommerceUniformes.marketplace.entity.Rol;
+import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.entity.dto.ProductoRequest;
 import com.uade.EcommerceUniformes.marketplace.repository.CategoryRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ProductoRepository;
+import com.uade.EcommerceUniformes.marketplace.repository.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class ProductoServiceImpl implements ProductoService {
 
     private final ProductoRepository productoRepository;
-
     private final CategoryRepository categoryRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     public List<Producto> getProductos() {
@@ -37,38 +40,54 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public Producto createProducto(ProductoRequest request) {
+public Producto createProducto(ProductoRequest request) {
 
-        System.out.println("CATEGORY ID RECIBIDO: " + request.getCategoryId());
+    Usuario vendedor = usuarioRepository.findById(request.getVendedorId())
+            .orElseThrow(() -> new RuntimeException(
+            "Usuario no encontrado con id: " + request.getVendedorId()));
 
-        Producto producto = new Producto();
+    if (vendedor.getRolUsuario() != Rol.VENDEDOR)
+        throw new RuntimeException("Solo los usuarios vendedores pueden crear productos");
 
-        producto.setNombre(request.getNombre());
-        producto.setDescripcion(request.getDescripcion());
-        producto.setPrecio(request.getPrecio());
-        producto.setTalle(request.getTalle());
-        producto.setStock(request.getStock());
-        producto.setEstado(request.getEstado());
+    Producto producto = new Producto();
 
-        if (request.getCategoryId() != null) {
+    producto.setNombre(request.getNombre());
+    producto.setDescripcion(request.getDescripcion());
+    producto.setPrecio(request.getPrecio());
+    producto.setTalle(request.getTalle());
+    producto.setStock(request.getStock());
+    producto.setEstado(request.getEstado());
+    producto.setVendedor(vendedor);
 
-            Category categoria = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException(
-                    "Categoria no encontrada con id: " + request.getCategoryId()
-            ));
+    if (request.getCategoryId() != null) {
 
-            System.out.println("CATEGORIA ENCONTRADA: " + categoria.getNombre());
+        Category categoria = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException(
+                "Categoria no encontrada con id: " + request.getCategoryId()
+        ));
 
-            producto.setCategoria(categoria);
-        }
-
-        return productoRepository.save(producto);
+        producto.setCategoria(categoria);
     }
 
-    public void deleteProducto(Long productoId) {
-        Producto producto = productoRepository.findById(productoId).orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
-        productoRepository.delete(producto);
+    return productoRepository.save(producto);
+}
 
-    }
+    @Override
+public void deleteProducto(Long productoId, Long usuarioId) {
+
+    Producto producto = productoRepository.findById(productoId)
+            .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+    boolean esDueño = producto.getVendedor().getId().equals(usuarioId);
+    boolean esAdmin = usuario.getRolUsuario() == Rol.ADMIN;
+
+    if (!esDueño && !esAdmin)
+        throw new RuntimeException("No tenés permiso para eliminar este producto");
+
+    productoRepository.delete(producto);
+}
 
 }

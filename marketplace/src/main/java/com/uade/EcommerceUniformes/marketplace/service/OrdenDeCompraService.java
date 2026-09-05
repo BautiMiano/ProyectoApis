@@ -8,11 +8,11 @@ import com.uade.EcommerceUniformes.marketplace.entity.dto.OrdenDeCompraRequest;
 
 public interface OrdenDeCompraService {
 
-   public List<OrdenDeCompra> getOrdenesDeCompra();
-
-    public Optional<OrdenDeCompra> getOrdenDeCompraById(Long ordenId);
+    public Optional<OrdenDeCompra> getOrdenDeCompraById(Long ordenId, Long usuarioId);
 
     public OrdenDeCompra createOrdenDeCompra(OrdenDeCompraRequest request);
 
     public void deleteOrdenDeCompra(Long ordenId);
+
+    public List<OrdenDeCompra> getOrdenesDeCompraParaUsuario(Long usuarioId);
 }

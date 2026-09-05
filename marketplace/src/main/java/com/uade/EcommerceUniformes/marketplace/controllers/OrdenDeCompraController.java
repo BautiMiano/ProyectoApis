@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.EcommerceUniformes.marketplace.entity.OrdenDeCompra;
@@ -26,14 +27,9 @@ public class OrdenDeCompraController {
     @Autowired
     private OrdenDeCompraService ordenDeCompraSerivice;
 
-    @GetMapping
-    public List<OrdenDeCompra> getOrdenesDeCompra() {
-        return ordenDeCompraSerivice.getOrdenesDeCompra();
-    }
-
     @GetMapping("/{ordenId}")
-    public Optional<OrdenDeCompra> getOrdenDeCompraById(@PathVariable Long ordenId) {
-        return ordenDeCompraSerivice.getOrdenDeCompraById(ordenId);
+    public Optional<OrdenDeCompra> getOrdenDeCompraById(@PathVariable Long ordenId, @RequestParam Long usuarioId) {
+    return ordenDeCompraSerivice.getOrdenDeCompraById(ordenId, usuarioId);
     }
 
     @PostMapping
@@ -51,4 +47,10 @@ public class OrdenDeCompraController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public List<OrdenDeCompra> getOrdenesDeCompra(@RequestParam Long usuarioId) {
+        return ordenDeCompraSerivice.getOrdenesDeCompraParaUsuario(usuarioId);
+    }
+
 }

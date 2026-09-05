@@ -30,14 +30,41 @@ public class OrdenDeCompraServiceImpl implements OrdenDeCompraService {
     @Autowired
     private CarritoService carritoService;
 
-    public List<OrdenDeCompra> getOrdenesDeCompra() {
-        return ordenDeCompraRepository.findAll();
+    @Override
+    public List<OrdenDeCompra> getOrdenesDeCompraParaUsuario(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+        return switch (usuario.getRolUsuario()) {
+            case ADMIN -> ordenDeCompraRepository.findAll();
+            case COMPRADOR -> ordenDeCompraRepository.findByUsuarioId(usuarioId);
+            case VENDEDOR -> ordenDeCompraRepository.findByVendedorId(usuarioId);
+        };
     }
 
-    public Optional<OrdenDeCompra> getOrdenDeCompraById(Long ordenId) {
-        return ordenDeCompraRepository.findById(ordenId);
+    @Override
+    public Optional<OrdenDeCompra> getOrdenDeCompraById(Long ordenId, Long usuarioId) {
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+        OrdenDeCompra orden = ordenDeCompraRepository.findById(ordenId)
+                .orElseThrow(() -> new RuntimeException("Orden de compra no encontrada con id: " + ordenId));
+
+        boolean tieneAcceso = switch (usuario.getRolUsuario()) {
+            case ADMIN -> true;
+            case COMPRADOR -> orden.getUsuario().getId().equals(usuarioId);
+            case VENDEDOR -> orden.getItems().stream()
+                    .anyMatch(item -> item.getProducto().getVendedor().getId().equals(usuarioId));
+        };
+
+        if (!tieneAcceso)
+            throw new RuntimeException("No tenés permiso para ver esta orden de compra");
+
+        return Optional.of(orden);
     }
 
+    @Override
     public OrdenDeCompra createOrdenDeCompra(OrdenDeCompraRequest request) {
 
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
@@ -83,6 +110,7 @@ public class OrdenDeCompraServiceImpl implements OrdenDeCompraService {
         return ordenGuardada;
     }
 
+    @Override
     public void deleteOrdenDeCompra(Long ordenId) {
 
         OrdenDeCompra orden = ordenDeCompraRepository.findById(ordenId)

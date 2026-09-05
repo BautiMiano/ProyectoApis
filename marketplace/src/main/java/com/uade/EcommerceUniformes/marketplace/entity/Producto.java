@@ -47,6 +47,9 @@ public class Producto {
 
     @OneToMany(mappedBy = "producto")
     private List<Imagen> imagenes;
-    
+
+    @ManyToOne
+@JoinColumn(name = "vendedor_id", nullable = false)
+private Usuario vendedor;
 
 }

@@ -13,4 +13,5 @@ public class ProductoRequest {
     private int stock;
     private EstadoProducto estado;
     private Long categoryId;
+    private Long vendedorId;
 }
