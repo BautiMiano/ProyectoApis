@@ -43,10 +43,10 @@ public class CarritoServiceImpl implements CarritoService {
 
     public Carrito createCarrito(Long usuarioId) {
         if (carritoRepository.findByUsuarioId(usuarioId).isPresent())
-            throw new Error("El usuario ya tiene un carrito creado");
+            throw new RuntimeException("El usuario ya tiene un carrito creado");
 
         Usuario usuario = usuarioService.getUsuarioById(usuarioId)
-                .orElseThrow(() -> new Error("Usuario no encontrado con id: " + usuarioId));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
 
         Carrito carrito = new Carrito();
         carrito.setUsuario(usuario);
@@ -55,16 +55,23 @@ public class CarritoServiceImpl implements CarritoService {
 
     public Carrito addProductoToCarrito(Long carritoId, Long productoId, int cantidad) {
         Carrito carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado con id: " + carritoId));
 
         Producto producto = productoService.getProductoById(productoId)
-                .orElseThrow(() -> new Error("Producto no encontrado con id: " + productoId));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+                
+        if (producto.getStock() < cantidad) {
+            throw new RuntimeException("No hay stock suficiente para el producto: " + producto.getNombre());
+        }
 
         Optional<ItemCarrito> itemExistente =
                 itemCarritoRepository.findByCarritoIdAndProductoId(carritoId, productoId);
 
         if (itemExistente.isPresent()) {
             ItemCarrito item = itemExistente.get();
+            if (producto.getStock() < item.getCantidad() + cantidad) {
+                throw new RuntimeException("No hay stock suficiente para el producto: " + producto.getNombre());
+            }
             item.setCantidad(item.getCantidad() + cantidad);
             itemCarritoRepository.save(item);
         } else {
@@ -84,30 +91,31 @@ public class CarritoServiceImpl implements CarritoService {
 
     public Carrito updateCantidadProducto(Long carritoId, Long productoId, int cantidad) {
         ItemCarrito item = itemCarritoRepository.findByCarritoIdAndProductoId(carritoId, productoId)
-                .orElseThrow(() -> new Error("El producto no se encuentra en el carrito"));
+                .orElseThrow(() -> new RuntimeException("El producto no se encuentra en el carrito"));
 
         item.setCantidad(cantidad);
         itemCarritoRepository.save(item);
 
         return carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado con id: " + carritoId));
     }
 
     public Carrito removeProductoFromCarrito(Long carritoId, Long productoId) {
         Carrito carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado con id: " + carritoId));
 
         ItemCarrito item = itemCarritoRepository.findByCarritoIdAndProductoId(carritoId, productoId)
-                .orElseThrow(() -> new Error("El producto no se encuentra en el carrito"));
+                .orElseThrow(() -> new RuntimeException("El producto no se encuentra en el carrito"));
 
         carrito.getItems().remove(item);
         return carritoRepository.save(carrito);
     }
+    
     public void vaciarCarrito(Long carritoId) {
-    Carrito carrito = carritoRepository.findById(carritoId)
-            .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado con id: " + carritoId));
 
-    carrito.getItems().clear();
-    carritoRepository.save(carrito);
-}
+        carrito.getItems().clear();
+        carritoRepository.save(carrito);
+    }
 }

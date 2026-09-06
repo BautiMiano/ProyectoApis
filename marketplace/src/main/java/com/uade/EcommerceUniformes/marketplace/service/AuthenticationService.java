@@ -31,10 +31,10 @@ public class AuthenticationService {
         if (request.getRol() == Rol.ADMIN) {
             throw new RuntimeException("No se puede registrar un usuario con rol ADMIN");
         }
-        if (usuarioRepository.findByMail(request.getMail()).isPresent()) {
+        if (usuarioRepository.existsByMail(request.getMail())) {
             throw new RuntimeException("El mail que se intenta agregar ya esta creado");
         }
-        if (usuarioRepository.findAll().stream().anyMatch((usuario) -> usuario.getNombreUsuario().equals(request.getNombreUsuario()))) {
+        if (usuarioRepository.existsByNombreUsuario(request.getNombreUsuario())) {
             throw new RuntimeException("El nombre de usuario que se intenta agregar ya esta creado");
         }
 
@@ -44,7 +44,7 @@ public class AuthenticationService {
                 request.getApellido(),
                 request.getMail(),
                 passwordEncoder.encode(request.getContrasena()),
-                Rol.COMPRADOR
+                request.getRol()
             );
 
         usuarioRepository.save(usuario);

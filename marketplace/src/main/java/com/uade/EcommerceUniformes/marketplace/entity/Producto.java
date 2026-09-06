@@ -43,6 +43,10 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Category categoria;
+    
+    @ManyToOne
+    @JoinColumn(name = "vendedor_id")
+    private Usuario vendedor;
     //private Descuento descuentoProducto;
 
     @OneToMany(mappedBy = "producto")

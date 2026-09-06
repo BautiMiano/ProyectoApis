@@ -39,7 +39,7 @@ public class Usuario implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nombreUsuario;
 
     @Column(nullable = false)
@@ -48,7 +48,7 @@ public class Usuario implements UserDetails {
     @Column
     private String apellido;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String mail;
 
     @JsonIgnore

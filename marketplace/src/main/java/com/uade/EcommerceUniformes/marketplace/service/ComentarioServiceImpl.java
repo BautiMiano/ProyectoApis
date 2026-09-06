@@ -43,6 +43,10 @@ public class ComentarioServiceImpl implements ComentarioService {
     @Override
     public Comentario createComentario(ComentarioRequest request) {
 
+        if (request.getCalificacion() < 1 || request.getCalificacion() > 5) {
+            throw new RuntimeException("La calificacion debe estar entre 1 y 5");
+        }
+
         Producto producto = productoRepository.findById(request.getProductoId())
                 .orElseThrow(() -> new RuntimeException(
                 "Producto no encontrado con id: " + request.getProductoId()));

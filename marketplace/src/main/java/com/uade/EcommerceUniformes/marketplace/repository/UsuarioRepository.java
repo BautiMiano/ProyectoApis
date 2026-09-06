@@ -11,6 +11,8 @@ import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
 
     Optional<Usuario> findByMail(String mail);
+    boolean existsByMail(String mail);
+    boolean existsByNombreUsuario(String nombreUsuario);
 
 }
 

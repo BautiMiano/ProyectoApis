@@ -25,10 +25,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public Category createCategory(String nombre){
-        List<Category> categories = categoryRepository.findAll();
-        if (categories.stream().anyMatch(
-                category -> category.getNombre().equals(nombre)))
-            throw new Error("La categoria que se intenta agregar ya esta creada");
+        if (categoryRepository.existsByNombre(nombre)) {
+            throw new RuntimeException("La categoria que se intenta agregar ya esta creada");
+        }
         return categoryRepository.save(new Category(nombre));
     }
 
@@ -39,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
                 "Categoria no encontrada con id: " + id
         ));
 
-        if (!category.getActivo()==false) {
+        if (!category.getActivo()) {
             throw new RuntimeException("La categoria con id: " + id + " ya se encuentra desactivada");
         }
         category.setActivo(false);
