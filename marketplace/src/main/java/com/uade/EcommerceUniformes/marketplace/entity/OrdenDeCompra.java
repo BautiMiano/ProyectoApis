@@ -3,7 +3,9 @@ package com.uade.EcommerceUniformes.marketplace.entity;
 import java.sql.Date;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,27 +13,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Data
 @Entity
 public class OrdenDeCompra {
-
-    public OrdenDeCompra(Usuario usuario, Date fechaCompra,
-            List<Producto> productos, Double total, MetodoDePago metodoDePago,
-            EstadoOrden estado, String comprobante) {
-
-        this.usuario = usuario;
-        this.fechaCompra = fechaCompra;
-        this.productos = productos;
-        this.total = total;
-        this.metodoDePago = metodoDePago;
-        this.estado = estado;
-        this.comprobante = comprobante;
-    }
 
     public OrdenDeCompra() {
     }
@@ -43,13 +31,8 @@ public class OrdenDeCompra {
     @Column
     private Date fechaCompra;
 
-    @ManyToMany
-    @JoinTable(
-            name = "orden_producto",
-            joinColumns = @JoinColumn(name = "orden_id"),
-            inverseJoinColumns = @JoinColumn(name = "producto_id")
-    )
-    private List<Producto> productos;
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
+    private List<DetalleOrden> detalles;
 
     @Column(nullable = false)
     private Double total;
@@ -65,6 +48,17 @@ public class OrdenDeCompra {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoOrden estado;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoPago estadoPago = EstadoPago.PENDIENTE_PAGO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoEnvio estadoEnvio = EstadoEnvio.EN_PREPARACION;
+
+    @Embedded
+    private Direccion direccionEnvio;
 
     @Column
     private String comprobante;

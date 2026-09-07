@@ -52,5 +52,8 @@ public class Producto {
     @OneToMany(mappedBy = "producto")
     private List<Imagen> imagenes;
     
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean activo = true;
+    
 
 }
