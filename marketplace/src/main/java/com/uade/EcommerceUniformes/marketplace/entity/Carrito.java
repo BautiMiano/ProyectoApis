@@ -1,5 +1,6 @@
 package com.uade.EcommerceUniformes.marketplace.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -14,9 +15,14 @@ public class Carrito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Enumerated(EnumType.STRING)
+    private EstadoCarrito estado;
+
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    private LocalDateTime fechaInicioPago;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCarrito> items;

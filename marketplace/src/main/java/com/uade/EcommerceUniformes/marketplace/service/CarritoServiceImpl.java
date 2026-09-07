@@ -1,19 +1,24 @@
 package com.uade.EcommerceUniformes.marketplace.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
+import com.uade.EcommerceUniformes.marketplace.entity.EstadoCarrito;
 import com.uade.EcommerceUniformes.marketplace.entity.ItemCarrito;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
 import com.uade.EcommerceUniformes.marketplace.entity.Rol;
 import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.repository.CarritoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ItemCarritoRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class CarritoServiceImpl implements CarritoService {
@@ -28,7 +33,6 @@ public class CarritoServiceImpl implements CarritoService {
 
     @Autowired
     private ProductoService productoService;
-
 
     public List<Carrito> getCarritos() {
         return carritoRepository.findAll();
@@ -50,10 +54,11 @@ public class CarritoServiceImpl implements CarritoService {
                 .orElseThrow(() -> new Error("Usuario no encontrado con id: " + usuarioId));
 
         if (usuario.getRolUsuario() != Rol.COMPRADOR)
-        throw new Error("Solo los usuarios compradores pueden crear un carrito");
+            throw new Error("Solo los usuarios compradores pueden crear un carrito");
 
         Carrito carrito = new Carrito();
         carrito.setUsuario(usuario);
+        carrito.setEstado(EstadoCarrito.ARMADO);
         return carritoRepository.save(carrito);
     }
 
@@ -107,11 +112,65 @@ public class CarritoServiceImpl implements CarritoService {
         carrito.getItems().remove(item);
         return carritoRepository.save(carrito);
     }
-    public void vaciarCarrito(Long carritoId) {
-    Carrito carrito = carritoRepository.findById(carritoId)
-            .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
 
-    carrito.getItems().clear();
-    carritoRepository.save(carrito);
+    public void vaciarCarrito(Long carritoId) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+
+        carrito.getItems().clear();
+        carritoRepository.save(carrito);
+    }
+
+    @Transactional
+    public Carrito iniciarPago(Long carritoId) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+
+        if (carrito.getEstado() != EstadoCarrito.ARMADO) {
+            throw new Error("El carrito no se encuentra en estado ARMADO");
+        }
+
+        for (ItemCarrito item : carrito.getItems()) {
+            productoService.reservarStock(item.getProducto().getId(), item.getCantidad());
+        }
+
+        carrito.setEstado(EstadoCarrito.PENDIENTE_PAGO);
+        carrito.setFechaInicioPago(LocalDateTime.now());
+
+        return carritoRepository.save(carrito);
+    }
+
+    @Transactional
+    public Carrito confirmarPago(Long carritoId) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new Error("Carrito no encontrado con id: " + carritoId));
+
+        if (carrito.getEstado() != EstadoCarrito.PENDIENTE_PAGO) {
+            throw new Error("El carrito no está pendiente de pago");
+        }
+
+        for (ItemCarrito item : carrito.getItems()) {
+            productoService.descontarStockDefinitivo(item.getProducto().getId(), item.getCantidad());
+        }
+
+        carrito.setEstado(EstadoCarrito.PAGADO);
+        return carritoRepository.save(carrito);
+    }
+
+    @Scheduled(fixedRate = 60000) // corre cada 1 minuto
+    @Transactional
+    public void expirarCarritosVencidos() {
+    LocalDateTime limite = LocalDateTime.now().minusMinutes(15);
+
+    List<Carrito> vencidos = carritoRepository
+            .findByEstadoAndFechaInicioPagoBefore(EstadoCarrito.PENDIENTE_PAGO, limite);
+
+    for (Carrito carrito : vencidos) {
+        for (ItemCarrito item : carrito.getItems()) {
+            productoService.liberarStock(item.getProducto().getId(), item.getCantidad());
+        }
+        carrito.setEstado(EstadoCarrito.EXPIRADO);
+        carritoRepository.save(carrito);
+    }
 }
 }

@@ -40,54 +40,79 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-public Producto createProducto(ProductoRequest request) {
+    public Producto createProducto(ProductoRequest request) {
 
-    Usuario vendedor = usuarioRepository.findById(request.getVendedorId())
-            .orElseThrow(() -> new RuntimeException(
-            "Usuario no encontrado con id: " + request.getVendedorId()));
-
-    if (vendedor.getRolUsuario() != Rol.VENDEDOR)
-        throw new RuntimeException("Solo los usuarios vendedores pueden crear productos");
-
-    Producto producto = new Producto();
-
-    producto.setNombre(request.getNombre());
-    producto.setDescripcion(request.getDescripcion());
-    producto.setPrecio(request.getPrecio());
-    producto.setTalle(request.getTalle());
-    producto.setStock(request.getStock());
-    producto.setEstado(request.getEstado());
-    producto.setVendedor(vendedor);
-
-    if (request.getCategoryId() != null) {
-
-        Category categoria = categoryRepository.findById(request.getCategoryId())
+        Usuario vendedor = usuarioRepository.findById(request.getVendedorId())
                 .orElseThrow(() -> new RuntimeException(
-                "Categoria no encontrada con id: " + request.getCategoryId()
-        ));
+                "Usuario no encontrado con id: " + request.getVendedorId()));
 
-        producto.setCategoria(categoria);
+        if (vendedor.getRolUsuario() != Rol.VENDEDOR)
+            throw new RuntimeException("Solo los usuarios vendedores pueden crear productos");
+
+        Producto producto = new Producto();
+        producto.setNombre(request.getNombre());
+        producto.setDescripcion(request.getDescripcion());
+        producto.setPrecio(request.getPrecio());
+        producto.setTalle(request.getTalle());
+        producto.setStock(request.getStock());
+        producto.setEstado(request.getEstado());
+        producto.setVendedor(vendedor);
+
+        if (request.getCategoryId() != null) {
+            Category categoria = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException(
+                    "Categoria no encontrada con id: " + request.getCategoryId()
+            ));
+            producto.setCategoria(categoria);
+        }
+
+        return productoRepository.save(producto);
     }
 
-    return productoRepository.save(producto);
-}
+    @Override
+    public void deleteProducto(Long productoId, Long usuarioId) {
+
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+        boolean esDueño = producto.getVendedor().getId().equals(usuarioId);
+        boolean esAdmin = usuario.getRolUsuario() == Rol.ADMIN;
+
+        if (!esDueño && !esAdmin)
+            throw new RuntimeException("No tenés permiso para eliminar este producto");
+
+        productoRepository.delete(producto);
+    }
 
     @Override
-public void deleteProducto(Long productoId, Long usuarioId) {
+    public void reservarStock(Long productoId, int cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        int disponible = producto.getStock() - producto.getStockReservado();
+        if (cantidad > disponible) {
+            throw new RuntimeException("No hay suficiente stock disponible para el producto con id: " + productoId);
+        }
+        producto.setStockReservado(producto.getStockReservado() + cantidad);
+        productoRepository.save(producto);
+    }
 
-    Producto producto = productoRepository.findById(productoId)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+    @Override
+    public void liberarStock(Long productoId, int cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        producto.setStockReservado(producto.getStockReservado() - cantidad);
+        productoRepository.save(producto);
+    }
 
-    Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
-
-    boolean esDueño = producto.getVendedor().getId().equals(usuarioId);
-    boolean esAdmin = usuario.getRolUsuario() == Rol.ADMIN;
-
-    if (!esDueño && !esAdmin)
-        throw new RuntimeException("No tenés permiso para eliminar este producto");
-
-    productoRepository.delete(producto);
-}
-
+    @Override
+    public void descontarStockDefinitivo(Long productoId, int cantidad) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        producto.setStock(producto.getStock() - cantidad);
+        producto.setStockReservado(producto.getStockReservado() - cantidad);
+        productoRepository.save(producto);
+    }
 }

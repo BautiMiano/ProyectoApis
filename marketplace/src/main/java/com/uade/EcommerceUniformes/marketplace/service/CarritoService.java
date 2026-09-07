@@ -13,4 +13,7 @@ public interface CarritoService {
     public Carrito updateCantidadProducto(Long carritoId, Long productoId, int cantidad);
     public Carrito removeProductoFromCarrito(Long carritoId, Long productoId);
     public void vaciarCarrito(Long carritoId);
+    public Carrito iniciarPago(Long carritoId);
+    Carrito confirmarPago(Long carritoId);
+    void expirarCarritosVencidos();
 }

@@ -28,43 +28,42 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/usuarios/**")
+                .requestMatchers(HttpMethod.GET, "/usuarios/**")
                 .hasAnyRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/categories/**")
+                .requestMatchers(HttpMethod.POST, "/categories/**")
                 .hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH,"/categories/**")
-                .hasRole("ADMIN")//patch
-                .requestMatchers(HttpMethod.PATCH,"/imagenes/**")
+                .requestMatchers(HttpMethod.PATCH, "/categories/**")
+                .hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/imagenes/**")
                 .hasRole("ADMIN")
 
-                
-                
+                // Restricciones de carrito (van ANTES de la regla general de /carritos/**)
+                .requestMatchers(HttpMethod.GET, "/carritos").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/carritos/{carritoId}").hasAnyRole("ADMIN")
+
                 // Permisos del vendedor
                 .requestMatchers(HttpMethod.DELETE, "/productos/**")
-                .hasAnyRole("VENDEDOR", "ADMIN")// patch 
+                .hasAnyRole("VENDEDOR", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/productos/**")
                 .hasAnyRole("VENDEDOR", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/productos/**")
-                .hasAnyRole("VENDEDOR", "ADMIN")// solo sus productos
+                .hasAnyRole("VENDEDOR", "ADMIN")
                 .requestMatchers("/descuentos/**")
                 .hasAnyRole("VENDEDOR", "ADMIN")
 
-                //Permiso de todos los usuarios
+                // Permiso de todos los usuarios
                 .requestMatchers(HttpMethod.GET, "/productos/**")
                 .permitAll()
                 .requestMatchers("/ordenesDeCompra/**")
-                .authenticated()// comprador: get de sus propias ordenes/ vendedor: get de sus ordenes, que no se autocompre / admin: todas
+                .authenticated()
                 .requestMatchers("/categories/**")
                 .permitAll()
-                .requestMatchers("/comentarios/**")
-                .permitAll()// get permitAll. post logica de comprar el prod comprador y vendedor. verificar si compro y que deje 1 solo comentario
-
+                .requestMatchers(HttpMethod.GET, "/comentarios/**")
+                .permitAll()
 
                 // Permisos del comprador
-                .requestMatchers("/carrito/**")      
-                .hasAnyRole("COMPRADOR")//comprador.
-                
-
+                .requestMatchers("/carritos/**")
+                .hasAnyRole("COMPRADOR")
 
                 .anyRequest().authenticated()
                 )
@@ -78,5 +77,5 @@ public class SecurityConfig {
                 );
 
         return http.build();
-        }
+    }
 }

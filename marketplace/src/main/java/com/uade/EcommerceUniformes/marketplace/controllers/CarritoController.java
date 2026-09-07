@@ -65,4 +65,15 @@ public class CarritoController {
         Carrito carritoActualizado = carritoService.removeProductoFromCarrito(carritoId, productoId);
         return ResponseEntity.ok(carritoActualizado);
     }
+    @PostMapping("/{carritoId}/pagar")
+    public ResponseEntity<Carrito> iniciarPago(@PathVariable Long carritoId) {
+    Carrito carritoActualizado = carritoService.iniciarPago(carritoId);
+    return ResponseEntity.ok(carritoActualizado);
+}
+
+    @PostMapping("/{carritoId}/confirmar")
+    public ResponseEntity<Carrito> confirmarPago(@PathVariable Long carritoId) {
+    Carrito carritoActualizado = carritoService.confirmarPago(carritoId);
+    return ResponseEntity.ok(carritoActualizado);
+}
 }
