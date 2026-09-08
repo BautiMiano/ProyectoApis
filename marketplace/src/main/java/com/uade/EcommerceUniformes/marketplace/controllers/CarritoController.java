@@ -49,8 +49,8 @@ public class CarritoController {
         return ResponseEntity.ok(carritoActualizado);
     }
 
-    // PUT http://localhost:4002/carritos/1/productos/5?cantidad=4
-    @PutMapping("/{carritoId}/productos/{productoId}")
+    // PATCH http://localhost:4002/carritos/1/productos/5?cantidad=4
+    @PatchMapping("/{carritoId}/productos/{productoId}")
     public ResponseEntity<Carrito> updateCantidadProducto(
             @PathVariable Long carritoId,
             @PathVariable Long productoId,

@@ -5,18 +5,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
 import com.uade.EcommerceUniformes.marketplace.entity.ItemCarrito;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
+import com.uade.EcommerceUniformes.marketplace.entity.Rol;
 import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.repository.CarritoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ItemCarritoRepository;
 import com.uade.EcommerceUniformes.marketplace.exceptions.RecursoNoEncontradoException;
 import com.uade.EcommerceUniformes.marketplace.exceptions.StockInsuficienteException;
 import com.uade.EcommerceUniformes.marketplace.exceptions.ReglaDeNegocioException;
+import com.uade.EcommerceUniformes.marketplace.exceptions.PermisoDenegadoException;
 
 @Service
 public class CarritoServiceImpl implements CarritoService {
@@ -32,20 +35,52 @@ public class CarritoServiceImpl implements CarritoService {
     @Autowired
     private ProductoService productoService;
 
+    private void verificarPermisoUsuario(Long usuarioId) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Usuario) {
+            Usuario usuarioActual = (Usuario) principal;
+            if (usuarioActual.getRolUsuario() != Rol.ADMIN && !usuarioId.equals(usuarioActual.getId())) {
+                throw new PermisoDenegadoException("No tienes permiso para acceder a los datos de este usuario");
+            }
+        }
+    }
+
+    private void verificarPermisoCarrito(Carrito carrito) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Usuario) {
+            Usuario usuarioActual = (Usuario) principal;
+            if (usuarioActual.getRolUsuario() != Rol.ADMIN && !carrito.getUsuario().getId().equals(usuarioActual.getId())) {
+                throw new PermisoDenegadoException("No tienes permiso para acceder a este carrito");
+            }
+        }
+    }
+
     public List<Carrito> getCarritos() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof Usuario) {
+            Usuario usuarioActual = (Usuario) principal;
+            if (usuarioActual.getRolUsuario() != Rol.ADMIN) {
+                throw new PermisoDenegadoException("Solo los administradores pueden ver todos los carritos");
+            }
+        }
         return carritoRepository.findAll();
     }
 
     public Optional<Carrito> getCarritoById(Long carritoId) {
-        return carritoRepository.findById(carritoId);
+        Optional<Carrito> carrito = carritoRepository.findById(carritoId);
+        carrito.ifPresent(this::verificarPermisoCarrito);
+        return carrito;
     }
 
     public Optional<Carrito> getCarritoByUsuarioId(Long usuarioId) {
+        verificarPermisoUsuario(usuarioId);
         return carritoRepository.findByUsuarioId(usuarioId);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     public Carrito createCarrito(Long usuarioId) {
+        verificarPermisoUsuario(usuarioId);
+
         if (carritoRepository.findByUsuarioId(usuarioId).isPresent())
             throw new ReglaDeNegocioException("El usuario ya tiene un carrito creado");
 
@@ -61,6 +96,8 @@ public class CarritoServiceImpl implements CarritoService {
     public Carrito addProductoToCarrito(Long carritoId, Long productoId, int cantidad) {
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
+
+        verificarPermisoCarrito(carrito);
 
         Producto producto = productoService.getProductoById(productoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado con id: " + productoId));
@@ -96,20 +133,26 @@ public class CarritoServiceImpl implements CarritoService {
 
     @Transactional(rollbackFor = Throwable.class)
     public Carrito updateCantidadProducto(Long carritoId, Long productoId, int cantidad) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
+
+        verificarPermisoCarrito(carrito);
+
         ItemCarrito item = itemCarritoRepository.findByCarritoIdAndProductoId(carritoId, productoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("El producto no se encuentra en el carrito"));
 
         item.setCantidad(cantidad);
         itemCarritoRepository.save(item);
 
-        return carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
+        return carritoRepository.save(carrito);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     public Carrito removeProductoFromCarrito(Long carritoId, Long productoId) {
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
+
+        verificarPermisoCarrito(carrito);
 
         ItemCarrito item = itemCarritoRepository.findByCarritoIdAndProductoId(carritoId, productoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("El producto no se encuentra en el carrito"));
@@ -123,6 +166,8 @@ public class CarritoServiceImpl implements CarritoService {
     public void vaciarCarrito(Long carritoId) {
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
+        
+        verificarPermisoCarrito(carrito);
         
         itemCarritoRepository.deleteAll(carrito.getItems());
         carrito.getItems().clear();

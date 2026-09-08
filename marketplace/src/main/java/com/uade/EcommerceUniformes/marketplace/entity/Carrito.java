@@ -1,5 +1,6 @@
 package com.uade.EcommerceUniformes.marketplace.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -20,4 +21,13 @@ public class Carrito {
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCarrito> items;
+
+    @Column(name = "fecha_ultima_modificacion")
+    private LocalDateTime fechaUltimaModificacion;
+
+    @PrePersist
+    @PreUpdate
+    public void actualizarFechaModificacion() {
+        this.fechaUltimaModificacion = LocalDateTime.now();
+    }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.net.URI;
 
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
 import com.uade.EcommerceUniformes.marketplace.entity.dto.ProductoRequest;
@@ -76,8 +77,11 @@ public class ProductoController {
 
     // POST http://localhost:4002/productos
     @PostMapping
-    public Producto createProducto(@RequestBody ProductoRequest request) {
-        return this.productoService.createProducto(request);
+    public ResponseEntity<Producto> createProducto(@RequestBody ProductoRequest request) {
+        Producto resultado = this.productoService.createProducto(request);
+        return ResponseEntity
+                .created(URI.create("/productos/" + resultado.getId()))
+                .body(resultado);
     }
 
     @DeleteMapping("/{productoId}")
