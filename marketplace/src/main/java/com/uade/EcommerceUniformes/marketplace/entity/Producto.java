@@ -45,7 +45,17 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Category categoria;
-    //private Descuento descuentoProducto;
+    
+    @ManyToOne
+    @JoinColumn(name = "descuento_id")
+    private Descuento descuento;
+
+    public double getPrecioFinal() {
+        if (descuento == null) {
+            return precio;
+        }
+        return precio - (precio * descuento.getPorcentaje() / 100);
+    }
 
     @OneToMany(mappedBy = "producto")
     private List<Imagen> imagenes;

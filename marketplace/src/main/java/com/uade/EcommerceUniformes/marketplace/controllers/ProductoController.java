@@ -67,4 +67,20 @@ public class ProductoController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{productoId}/descuento/{descuentoId}")
+    public ResponseEntity<Producto> aplicarDescuento(
+            @PathVariable Long productoId,
+            @PathVariable Long descuentoId,
+            @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(
+                productoService.aplicarDescuento(productoId, descuentoId, usuarioId));
+    }
+
+    @DeleteMapping("/{productoId}/descuento")
+    public ResponseEntity<Producto> quitarDescuento(
+            @PathVariable Long productoId,
+            @RequestParam Long usuarioId) {
+        return ResponseEntity.ok(productoService.quitarDescuento(productoId, usuarioId));
+    }
 }

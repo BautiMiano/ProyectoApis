@@ -107,7 +107,7 @@ public class CarritoServiceImpl implements CarritoService {
             nuevoItem.setCarrito(carrito);
             nuevoItem.setProducto(producto);
             nuevoItem.setCantidad(cantidad);
-            nuevoItem.setPrecioUnitario(producto.getPrecio());
+            nuevoItem.setPrecioUnitario(producto.getPrecioFinal());
             carrito.getItems().add(nuevoItem);
         }
 

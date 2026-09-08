@@ -14,6 +14,9 @@ public interface ProductoService {
     void desactivarProducto(Long productoId, Long usuarioId);
     void activarProducto(Long productoId, Long usuarioId) ;
 
+    Producto aplicarDescuento(Long productoId, Long descuentoId, Long usuarioId);
+    Producto quitarDescuento(Long productoId, Long usuarioId);
+
     void reservarStock(Long productoId, int cantidad);
     void liberarStock(Long productoId, int cantidad);
     void descontarStockDefinitivo(Long productoId, int cantidad);

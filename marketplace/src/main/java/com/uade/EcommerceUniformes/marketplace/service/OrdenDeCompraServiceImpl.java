@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.EcommerceUniformes.marketplace.entity.EstadoOrden;
+import com.uade.EcommerceUniformes.marketplace.entity.Carrito;
+import com.uade.EcommerceUniformes.marketplace.entity.ItemCarrito;
 import com.uade.EcommerceUniformes.marketplace.entity.ItemDeOrdenDeCompra;
 import com.uade.EcommerceUniformes.marketplace.entity.OrdenDeCompra;
 import com.uade.EcommerceUniformes.marketplace.entity.Producto;
@@ -16,6 +18,8 @@ import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.entity.dto.ItemOrdenRequest;
 import com.uade.EcommerceUniformes.marketplace.entity.dto.OrdenDeCompraRequest;
 import com.uade.EcommerceUniformes.marketplace.repository.OrdenDeCompraRepository;
+import com.uade.EcommerceUniformes.marketplace.repository.CarritoRepository;
+import com.uade.EcommerceUniformes.marketplace.repository.ItemCarritoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ProductoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.UsuarioRepository;
 
@@ -30,6 +34,12 @@ public class OrdenDeCompraServiceImpl implements OrdenDeCompraService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private CarritoRepository carritoRepository;
+
+    @Autowired
+    private ItemCarritoRepository itemCarritoRepository;
 
     public List<OrdenDeCompra> getOrdenesDeCompra() {
         return ordenDeCompraRepository.findAll();
@@ -47,6 +57,15 @@ public class OrdenDeCompraServiceImpl implements OrdenDeCompraService {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new RuntimeException("La orden de compra debe tener al menos un item");
+        }
+        Carrito carrito = null;
+        if (request.getCarritoId() != null) {
+            carrito = carritoRepository.findById(request.getCarritoId())
+                    .orElseThrow(() -> new RuntimeException(
+                    "Carrito no encontrado con id: " + request.getCarritoId()));
+            if (!carrito.getUsuario().getId().equals(usuario.getId())) {
+                throw new RuntimeException("El carrito no pertenece al usuario de la orden");
+            }
         }
         double total = 0;
 
@@ -81,10 +100,18 @@ public class OrdenDeCompraServiceImpl implements OrdenDeCompraService {
             item.setOrden(orden);
             item.setProducto(producto);
             item.setCantidad(itemReq.getCantidad());
-            item.setPrecioUnitario(producto.getPrecio());
+            double precioUnitario = producto.getPrecioFinal();
+            if (carrito != null) {
+                ItemCarrito itemCarrito = itemCarritoRepository
+                        .findByCarritoIdAndProductoId(carrito.getId(), producto.getId())
+                        .orElseThrow(() -> new RuntimeException(
+                        "El producto no se encuentra en el carrito"));
+                precioUnitario = itemCarrito.getPrecioUnitario();
+            }
+            item.setPrecioUnitario(precioUnitario);
             items.add(item);
 
-            total += producto.getPrecio() * itemReq.getCantidad();
+            total += precioUnitario * itemReq.getCantidad();
 
             producto.setStock(producto.getStock() - itemReq.getCantidad());
             productoRepository.save(producto);

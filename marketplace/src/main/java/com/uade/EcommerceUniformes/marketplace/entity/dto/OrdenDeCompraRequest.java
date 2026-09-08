@@ -9,6 +9,8 @@ import lombok.Data;
 public class OrdenDeCompraRequest {
     private Long usuarioId;
 
+    private Long carritoId;
+
     private List<ItemOrdenRequest> items;
 
     private String comprobante;

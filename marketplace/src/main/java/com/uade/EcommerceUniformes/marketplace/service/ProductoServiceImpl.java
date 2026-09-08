@@ -11,10 +11,13 @@ import com.uade.EcommerceUniformes.marketplace.entity.Rol;
 import com.uade.EcommerceUniformes.marketplace.entity.Usuario;
 import com.uade.EcommerceUniformes.marketplace.entity.dto.ProductoRequest;
 import com.uade.EcommerceUniformes.marketplace.repository.CategoryRepository;
+import com.uade.EcommerceUniformes.marketplace.repository.DescuentoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.ProductoRepository;
 import com.uade.EcommerceUniformes.marketplace.repository.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import com.uade.EcommerceUniformes.marketplace.entity.Descuento;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class ProductoServiceImpl implements ProductoService {
     private final ProductoRepository productoRepository;
     private final CategoryRepository categoryRepository;
     private final UsuarioRepository usuarioRepository;
+    private final DescuentoRepository descuentoRepository;
 
     @Override
     public List<Producto> getProductos() {
@@ -104,6 +108,42 @@ public class ProductoServiceImpl implements ProductoService {
 
         producto.setActivo(true);
         productoRepository.save(producto);
+    }
+
+    @Override
+    public Producto aplicarDescuento(Long productoId, Long descuentoId, Long usuarioId) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+        Descuento descuento = descuentoRepository.findById(descuentoId)
+                .orElseThrow(() -> new RuntimeException("Descuento no encontrado con id: " + descuentoId));
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+        validarPermisoSobreProducto(producto, usuario, "aplicar el descuento");
+        producto.setDescuento(descuento);
+        return productoRepository.save(producto);
+    }
+
+    @Override
+    public Producto quitarDescuento(Long productoId, Long usuarioId) {
+        Producto producto = productoRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + productoId));
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + usuarioId));
+
+        validarPermisoSobreProducto(producto, usuario, "quitar el descuento");
+        producto.setDescuento(null);
+        return productoRepository.save(producto);
+    }
+
+    private void validarPermisoSobreProducto(Producto producto, Usuario usuario, String accion) {
+        boolean esDueño = producto.getVendedor() != null
+                && producto.getVendedor().getId().equals(usuario.getId());
+        boolean esAdmin = usuario.getRolUsuario() == Rol.ADMIN;
+
+        if (!esDueño && !esAdmin) {
+            throw new RuntimeException("No tenés permiso para " + accion + " de este producto");
+        }
     }
 
     @Override

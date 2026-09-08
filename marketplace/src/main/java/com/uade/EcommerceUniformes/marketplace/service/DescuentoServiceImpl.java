@@ -21,8 +21,10 @@ public class DescuentoServiceImpl implements DescuentoService {
     }
 
     public Descuento createDescuento(double porcentaje) {
-        if (porcentaje <= 0 || porcentaje > 100)
-            throw new Error("El porcentaje de descuento debe ser mayor a 0 y menor o igual a 100");
+        if (porcentaje <= 0 || porcentaje > 100) {
+            throw new IllegalArgumentException(
+                    "El porcentaje de descuento debe ser mayor a 0 y menor o igual a 100");
+        }
 
         Descuento descuento = new Descuento();
         descuento.setPorcentaje(porcentaje);
